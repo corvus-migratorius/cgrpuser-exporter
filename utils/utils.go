@@ -7,13 +7,16 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
 type UserSlice struct {
-	Path     string
-	UID      string
-	Username string
-	// MemoryCurrent int
+	Path          string
+	UID           string
+	Username      string
+	MemoryCurrent int
+	// MemoryCurrentHuman string
 }
 
 func GetUserSlices(path string) (slices []UserSlice) {
@@ -25,6 +28,7 @@ func GetUserSlices(path string) (slices []UserSlice) {
 			UID:  extractUID(name),
 		}
 		slice.Username = getUsername(slice.UID)
+		slice.MemoryCurrent = getMemoryCurrent(slice.Path)
 		slices = append(slices, slice)
 	}
 
@@ -68,7 +72,22 @@ func extractUID(name string) (uid string) {
 func getUsername(uid string) (username string) {
 	user, err := user.LookupId(uid)
 	if err != nil {
-		log.Printf("Could not find a user with UID %s!", uid)
+		log.Printf("ERROR: Could not find a user with UID %s!", uid)
 	}
 	return user.Username
+}
+
+func getMemoryCurrent(slicePath string) (memCurrent int) {
+	memFilePath := filepath.Join(slicePath, "memory.current")
+	data, err := os.ReadFile(memFilePath)
+	if err != nil {
+		log.Printf("ERROR: Could not read '%s'!", memFilePath)
+	}
+
+	memCurrent, err = strconv.Atoi(strings.Trim(string(data), "\n"))
+	if err != nil {
+		log.Printf("ERROR: Failed to parse '%s': %s", memFilePath, err)
+	}
+
+	return
 }
