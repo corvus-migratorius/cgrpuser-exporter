@@ -15,7 +15,7 @@ type UserSlice struct {
 	Path          string
 	UID           string
 	Username      string
-	MemoryCurrent int
+	MemoryCurrent uint64
 	// MemoryCurrentHuman string
 }
 
@@ -77,14 +77,14 @@ func getUsername(uid string) (username string) {
 	return user.Username
 }
 
-func getMemoryCurrent(slicePath string) (memCurrent int) {
+func getMemoryCurrent(slicePath string) (memCurrent uint64) {
 	memFilePath := filepath.Join(slicePath, "memory.current")
 	data, err := os.ReadFile(memFilePath)
 	if err != nil {
 		log.Printf("ERROR: Could not read '%s'!", memFilePath)
 	}
 
-	memCurrent, err = strconv.Atoi(strings.Trim(string(data), "\n"))
+	memCurrent, err = strconv.ParseUint(strings.Trim(string(data), "\n"), 10, 64)
 	if err != nil {
 		log.Printf("ERROR: Failed to parse '%s': %s", memFilePath, err)
 	}
