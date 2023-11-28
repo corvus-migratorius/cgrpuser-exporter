@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"strings"
 
 	"cgrpuser-exporter/exporter"
 
@@ -38,6 +40,14 @@ func parseArgs(APPNAME string, VERSION string) (*int, *int) {
 	return port, timeout
 }
 
+func getCgroupsVersion() string {
+	version, err := exec.Command("stat", "-fc", "%T", "/sys/fs/cgroup/").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return strings.Trim(string(version), "\n")
+}
+
 func main() {
 	APPNAME := "cgrpuser-exporter"
 	VERSION := "0.1.0"
@@ -46,6 +56,16 @@ func main() {
 
 	log.Printf("Using port %d to publish /metrics\n", *port)
 	log.Printf("Setting user.slice scraping timeout to %d seconds\n", *timeout)
+
+	cgrpVersion := getCgroupsVersion()
+
+	if cgrpVersion == "tmpfs" {
+		log.Fatal("Detected cgroups v1: we only support v2.")
+	} else if cgrpVersion == "cgroup2fs" {
+		log.Println("Detected cgroups v2 - good to go!")
+	} else {
+		log.Fatalf("Could not determine cgroups version (got '%s' for '/sys/fs/cgroup/' fs type)", cgrpVersion)
+	}
 
 	exporter := exporter.CgroupUserExporter(*timeout)
 	fmt.Printf("%#v\n", exporter)
