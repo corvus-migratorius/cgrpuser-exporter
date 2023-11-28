@@ -68,7 +68,8 @@ func main() {
 		log.Fatalf("Could not determine cgroups version (got '%s' for '/sys/fs/cgroup/' fs type)", cgrpVersion)
 	}
 
-	fmt.Printf("%#v", utils.GetUserSlices("/sys/fs/cgroup/user.slice"))
+	fmt.Printf("%#v\n", utils.GetUserSlices("/sys/fs/cgroup/user.slice"))
+	fmt.Printf("Hostname: %s\n", utils.GetHostname())
 
 	exporter := exporter.CgroupUserExporter(*timeout)
 	fmt.Printf("%#v\n", exporter)

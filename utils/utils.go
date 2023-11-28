@@ -94,3 +94,12 @@ func getMemoryCurrent(slicePath string) (memCurrent uint64) {
 
 	return
 }
+
+// Get the hostname of the current node
+func GetHostname() (hostname string) {
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatal("Failed to get the hostname from the OS")
+	}
+	return hostname
+}
