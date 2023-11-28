@@ -8,6 +8,8 @@
 *.so
 *.dylib
 
+cgrpuser-exporter
+
 # Test binary, built with `go test -c`
 *.test
 

@@ -33,6 +33,4 @@ func CgroupUserExporter(timeout int) *cgrpUserExporter {
 	return &exporter
 }
 
-// func scrapeSliceNames() {
 
-// }

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"cgrpuser-exporter/exporter"
+	"cgrpuser-exporter/utils"
 
 	"github.com/akamensky/argparse"
 )
@@ -67,8 +68,11 @@ func main() {
 		log.Fatalf("Could not determine cgroups version (got '%s' for '/sys/fs/cgroup/' fs type)", cgrpVersion)
 	}
 
+	fmt.Println(utils.ScrapeSliceNames())
+
 	exporter := exporter.CgroupUserExporter(*timeout)
 	fmt.Printf("%#v\n", exporter)
+
 	// cnexporter.RecordCounts()
 	// cnexporter.RecordMetadata()
 
