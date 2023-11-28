@@ -3,10 +3,13 @@ package exporter
 import (
 	"fmt"
 	"time"
+
+	"cgrpuser-exporter/utils"
 )
 
 type cgrpUserExporter struct {
-	// Slices  []UserSlice
+	Hostname string
+	Slices  []utils.UserSlice
 	Timeout int
 }
 
@@ -19,8 +22,10 @@ func (self *cgrpUserExporter) setSliceNames() {
 	}()
 }
 
-func CgroupUserExporter(timeout int) *cgrpUserExporter {
+func CgroupUserExporter(userSlicePath string, timeout int) *cgrpUserExporter {
 	exporter := cgrpUserExporter{
+		Hostname: utils.GetHostname(),
+		Slices: utils.GetUserSlices(userSlicePath),
 		Timeout: timeout,
 	}
 
