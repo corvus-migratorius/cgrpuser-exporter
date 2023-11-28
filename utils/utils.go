@@ -9,14 +9,16 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/dustin/go-humanize"
 )
 
 type UserSlice struct {
-	Path          string
-	UID           string
-	Username      string
-	MemoryCurrent uint64
-	// MemoryCurrentHuman string
+	Path               string
+	UID                string
+	Username           string
+	MemoryCurrent      uint64
+	MemoryCurrentHuman string
 }
 
 func GetUserSlices(path string) (slices []UserSlice) {
@@ -29,6 +31,7 @@ func GetUserSlices(path string) (slices []UserSlice) {
 		}
 		slice.Username = getUsername(slice.UID)
 		slice.MemoryCurrent = getMemoryCurrent(slice.Path)
+		slice.MemoryCurrentHuman = humanize.IBytes(slice.MemoryCurrent)
 		slices = append(slices, slice)
 	}
 
