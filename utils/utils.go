@@ -4,13 +4,36 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
+	"strconv"
 )
 
-func ScrapeSliceNames() (sliceNames []string) {
+type UserSlice struct {
+	Path string
+	// Username      string
+	UID int
+	// MemoryCurrent int
+}
+
+func GetUserSlices(path string) (slices []UserSlice) {
+	names := scrapeSliceNames(path)
+
+	for _, name := range names {
+		slice := UserSlice{
+			Path: filepath.Join(path, name),
+			UID:  extractUID(name),
+		}
+		slices = append(slices, slice)
+	}
+
+	return
+}
+
+func scrapeSliceNames(path string) (sliceNames []string) {
 	pattern := regexp.MustCompile(`user-\d+`)
 
-	dir, err := os.Open("/sys/fs/cgroup/user.slice")
+	dir, err := os.Open(path)
 	if err != nil {
 		fmt.Println("Error opening directory:", err)
 		return
@@ -33,11 +56,14 @@ func ScrapeSliceNames() (sliceNames []string) {
 	}
 
 	return
-	// output, err := exec.Command("stat", "-fc", "%T", "/sys/fs/cgroup/").Output()
-	//
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	// return strings.Trim(string(output), "\n")
+}
+
+func extractUID(name string) (UID int) {
+	pattern := regexp.MustCompile(`(user-)(\d+)(.slice)`)
+	UID, err := strconv.Atoi(pattern.FindStringSubmatch(name)[2])
+	if err != nil {
+		log.Fatalf("Failed to extract UID from '%s'", name)
+	}
+
+	return
 }

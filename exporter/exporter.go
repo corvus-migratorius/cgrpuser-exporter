@@ -5,12 +5,6 @@ import (
 	"time"
 )
 
-// type UserSlice struct {
-// 	name          string
-// 	UID           int
-// 	MemoryCurrent int
-// }
-
 type cgrpUserExporter struct {
 	// Slices  []UserSlice
 	Timeout int
