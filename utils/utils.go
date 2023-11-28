@@ -54,12 +54,12 @@ func scrapeSliceNames(path string) (sliceNames []string) {
 	}
 
 	for _, filename := range filenames {
-		fmt.Println(filename.Name())
 		if err != nil {
 			log.Fatal(err)
 		}
 		if pattern.MatchString(filename.Name()) {
 			sliceNames = append(sliceNames, filename.Name())
+			fmt.Printf("Detected a user slice: %s\n", filename.Name())
 		}
 	}
 
