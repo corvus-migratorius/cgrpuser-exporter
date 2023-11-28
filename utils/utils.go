@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 	"path/filepath"
 	"regexp"
-	"strconv"
 )
 
 type UserSlice struct {
-	Path string
-	// Username      string
-	UID int
+	Path     string
+	UID      string
+	Username string
 	// MemoryCurrent int
 }
 
@@ -24,6 +24,7 @@ func GetUserSlices(path string) (slices []UserSlice) {
 			Path: filepath.Join(path, name),
 			UID:  extractUID(name),
 		}
+		slice.Username = getUsername(slice.UID)
 		slices = append(slices, slice)
 	}
 
@@ -58,12 +59,16 @@ func scrapeSliceNames(path string) (sliceNames []string) {
 	return
 }
 
-func extractUID(name string) (UID int) {
+func extractUID(name string) (uid string) {
 	pattern := regexp.MustCompile(`(user-)(\d+)(.slice)`)
-	UID, err := strconv.Atoi(pattern.FindStringSubmatch(name)[2])
-	if err != nil {
-		log.Fatalf("Failed to extract UID from '%s'", name)
-	}
-
+	uid = string(pattern.FindStringSubmatch(name)[2])
 	return
+}
+
+func getUsername(uid string) (username string) {
+	user, err := user.LookupId(uid)
+	if err != nil {
+		log.Printf("Could not find a user with UID %s!", uid)
+	}
+	return user.Username
 }
