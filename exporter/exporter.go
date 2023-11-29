@@ -69,6 +69,7 @@ func (self *cgrpUserExporter) RecordMetrics() {
 	}()
 }
 
+// CgroupUserExporter is factory function serving as constructor for the cgrpUserExporter type
 func CgroupUserExporter(userSlicePath string, timeout int) *cgrpUserExporter {
 	exporter := cgrpUserExporter{
 		Hostname:  utils.GetHostname(),
