@@ -53,7 +53,7 @@ func getCgroupsVersion() string {
 
 func main() {
 	APPNAME := "cgrpuser-exporter"
-	VERSION := "0.1.0"
+	VERSION := "0.1.1"
 
 	port, timeout := parseArgs(APPNAME, VERSION)
 
