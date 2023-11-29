@@ -1,7 +1,14 @@
+/* Package exporter exports data about Systemd user slices as Prometheus gauges.
+
+Data extraction is handled with the `cgrpUserExporter` type.
+Use the `CgroupUserExporter` factory function to get a properly initialized
+instance of the exporter.
+
+A web server exporting the `/metrics` endpoint is not included in the module,
+but is trivial to implement: e.g. see the accompanying `main.go` file. */
 package exporter
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -16,15 +23,6 @@ type cgrpUserExporter struct {
 	SlicePath     string
 	MemoryCurrent *prometheus.GaugeVec
 	SwapCurrent   *prometheus.GaugeVec
-}
-
-func (self *cgrpUserExporter) setSliceNames() {
-	go func() {
-		for {
-			fmt.Println("Exporter is alive")
-			time.Sleep(time.Duration(self.Timeout) * time.Second)
-		}
-	}()
 }
 
 func (self *cgrpUserExporter) initGauges() {
