@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"cgrpuser-exporter/utils"
 
 	"github.com/akamensky/argparse"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func parseArgs(APPNAME string, VERSION string) (*int, *int) {
@@ -73,9 +75,11 @@ func main() {
 	exporter := exporter.CgroupUserExporter("/sys/fs/cgroup/user.slice", *timeout)
 	fmt.Printf("%#v\n", exporter)
 
+	exporter.RecordMemoryCurrent()
+
 	// cnexporter.RecordCounts()
 	// cnexporter.RecordMetadata()
 
-	// http.Handle("/metrics", promhttp.Handler())
-	// log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
+	http.Handle("/metrics", promhttp.Handler())
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }
