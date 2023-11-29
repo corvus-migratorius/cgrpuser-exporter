@@ -24,3 +24,6 @@ jobs:
 
     - name: Build
       run: make && make install
+
+    - name: Run
+      run: cgrpuser-exporter --version
