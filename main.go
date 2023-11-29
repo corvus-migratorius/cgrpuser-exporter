@@ -77,9 +77,6 @@ func main() {
 
 	exporter.RecordMetrics()
 
-	// cnexporter.RecordCounts()
-	// cnexporter.RecordMetadata()
-
 	http.Handle("/metrics", promhttp.Handler())
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }

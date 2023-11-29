@@ -1,3 +1,4 @@
+/* Package utils provides utility functions for the cgruser-exporter project.*/
 package utils
 
 import (
@@ -98,7 +99,7 @@ func getNumericFileContents(path string) (memCurrent uint64) {
 	return
 }
 
-// Get the hostname of the current node
+// GetHostname returns the hostname of the current node
 func GetHostname() (hostname string) {
 	hostname, err := os.Hostname()
 	if err != nil {
