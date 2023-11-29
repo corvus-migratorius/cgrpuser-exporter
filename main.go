@@ -75,7 +75,7 @@ func main() {
 	exporter := exporter.CgroupUserExporter("/sys/fs/cgroup/user.slice", *timeout)
 	fmt.Printf("%#v\n", exporter)
 
-	exporter.RecordMemoryCurrent()
+	exporter.RecordMetrics()
 
 	// cnexporter.RecordCounts()
 	// cnexporter.RecordMetadata()

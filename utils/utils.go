@@ -19,6 +19,8 @@ type UserSlice struct {
 	Username           string
 	MemoryCurrent      uint64
 	MemoryCurrentHuman string
+	SwapCurrent        uint64
+	SwapCurrentHuman   string
 }
 
 func GetUserSlices(path string) (slices []UserSlice) {
@@ -30,8 +32,10 @@ func GetUserSlices(path string) (slices []UserSlice) {
 			UID:  extractUID(name),
 		}
 		slice.Username = getUsername(slice.UID)
-		slice.MemoryCurrent = getMemoryCurrent(slice.Path)
+		slice.MemoryCurrent = getNumericFileContents(filepath.Join(slice.Path, "memory.current"))
 		slice.MemoryCurrentHuman = humanize.IBytes(slice.MemoryCurrent)
+		slice.SwapCurrent = getNumericFileContents(filepath.Join(slice.Path, "memory.swap.current"))
+		slice.SwapCurrentHuman = humanize.IBytes(slice.SwapCurrent)
 		slices = append(slices, slice)
 	}
 
@@ -80,16 +84,15 @@ func getUsername(uid string) (username string) {
 	return user.Username
 }
 
-func getMemoryCurrent(slicePath string) (memCurrent uint64) {
-	memFilePath := filepath.Join(slicePath, "memory.current")
-	data, err := os.ReadFile(memFilePath)
+func getNumericFileContents(path string) (memCurrent uint64) {
+	data, err := os.ReadFile(path)
 	if err != nil {
-		log.Printf("ERROR: Could not read '%s'!", memFilePath)
+		log.Printf("ERROR: Could not read '%s'!", path)
 	}
 
 	memCurrent, err = strconv.ParseUint(strings.Trim(string(data), "\n"), 10, 64)
 	if err != nil {
-		log.Printf("ERROR: Failed to parse '%s': %s", memFilePath, err)
+		log.Printf("ERROR: Failed to parse '%s': %s", path, err)
 	}
 
 	return
