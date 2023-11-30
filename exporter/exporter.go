@@ -1,11 +1,13 @@
-/* Package exporter exports data about Systemd user slices as Prometheus gauges.
+/*
+	Package exporter exports data about Systemd user slices as Prometheus gauges.
 
 Data extraction is handled with the `cgrpUserExporter` type.
 Use the `CgroupUserExporter` factory function to get a properly initialized
 instance of the exporter.
 
 A web server exporting the `/metrics` endpoint is not included in the module,
-but is trivial to implement: e.g. see the accompanying `main.go` file. */
+but is trivial to implement: e.g. see the accompanying `main.go` file.
+*/
 package exporter
 
 import (
@@ -22,6 +24,7 @@ type cgrpUserExporter struct {
 	Hostname      string
 	SlicePath     string
 	MemoryCurrent *prometheus.GaugeVec
+	MemoryAnon    *prometheus.GaugeVec
 	SwapCurrent   *prometheus.GaugeVec
 }
 
@@ -29,6 +32,13 @@ func (self *cgrpUserExporter) initGauges() {
 	self.MemoryCurrent = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "cgrpuser_exporter_memory_current",
 		Help: "Memory consumed by user slices on this node",
+	},
+		[]string{"nodename", "uid", "username"},
+	)
+
+	self.MemoryAnon = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "cgrpuser_exporter_memory_anonymous",
+		Help: "Anonymous memory consumed by user slices on this node",
 	},
 		[]string{"nodename", "uid", "username"},
 	)
@@ -51,11 +61,18 @@ func (self *cgrpUserExporter) RecordMetrics() {
 			for _, slice := range slices {
 				username := slice.Username
 				uid := slice.UID
+
 				self.MemoryCurrent.With(prometheus.Labels{
 					"username": username,
 					"uid":      uid,
 					"nodename": self.Hostname,
 				}).Set(float64(slice.MemoryCurrent))
+
+				self.MemoryAnon.With(prometheus.Labels{
+					"username": username,
+					"uid":      uid,
+					"nodename": self.Hostname,
+				}).Set(float64(slice.MemoryAnon))
 
 				self.SwapCurrent.With(prometheus.Labels{
 					"username": slice.Username,

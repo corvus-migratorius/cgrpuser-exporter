@@ -2,6 +2,7 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -20,6 +21,8 @@ type UserSlice struct {
 	Username           string
 	MemoryCurrent      uint64
 	MemoryCurrentHuman string
+	MemoryAnon         uint64
+	MemoryAnonHuman    string
 	SwapCurrent        uint64
 	SwapCurrentHuman   string
 }
@@ -35,6 +38,8 @@ func GetUserSlices(path string) (slices []UserSlice) {
 		slice.Username = getUsername(slice.UID)
 		slice.MemoryCurrent = getNumericFileContents(filepath.Join(slice.Path, "memory.current"))
 		slice.MemoryCurrentHuman = humanize.IBytes(slice.MemoryCurrent)
+		slice.MemoryAnon = getNumValueFromFile(filepath.Join(slice.Path, "memory.stat"), "anon")
+		slice.MemoryAnonHuman = humanize.IBytes(slice.MemoryAnon)
 		slice.SwapCurrent = getNumericFileContents(filepath.Join(slice.Path, "memory.swap.current"))
 		slice.SwapCurrentHuman = humanize.IBytes(slice.SwapCurrent)
 		slices = append(slices, slice)
@@ -85,17 +90,45 @@ func getUsername(uid string) (username string) {
 	return user.Username
 }
 
-func getNumericFileContents(path string) (memCurrent uint64) {
+func getNumericFileContents(path string) (value uint64) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		log.Printf("ERROR: Could not read '%s'!", path)
 	}
 
-	memCurrent, err = strconv.ParseUint(strings.Trim(string(data), "\n"), 10, 64)
+	value, err = strconv.ParseUint(strings.Trim(string(data), "\n"), 10, 64)
 	if err != nil {
 		log.Printf("ERROR: Failed to parse '%s': %s", path, err)
 	}
 
+	return
+}
+
+func getNumValueFromFile(path, key string) (valueUint64 uint64) {
+	file, err := os.Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, key) {
+			value := strings.Split(line, " ")[1]
+			valueUint64, err := strconv.ParseUint(value, 10, 64)
+			if err != nil {
+				log.Printf("ERROR: Failed to parse '%s': %s", path, err)
+			}
+			return valueUint64
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Key '%s' not found in '%s'\n", key, path)
 	return
 }
 
